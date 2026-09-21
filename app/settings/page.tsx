@@ -37,6 +37,9 @@ export default function SettingsPage() {
   const [groupName, setGroupName] = useState("");
   const [medications, setMedications] = useState([{ name: "", dose: "" }]);
   const [message, setMessage] = useState("");
+  const [syncCode, setSyncCode] = useState("");
+  const [pairingCode, setPairingCode] = useState("");
+  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +66,19 @@ export default function SettingsPage() {
     };
 
     loadGroups();
+
+    const loadSyncCode = async () => {
+      try {
+        const response = await fetch("/api/account", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json() as { syncCode?: string };
+        if (!cancelled) setSyncCode(data.syncCode ?? "");
+      } catch {
+        // The sync card remains available once the D1 migration is applied.
+      }
+    };
+
+    loadSyncCode();
     return () => {
       cancelled = true;
     };
@@ -145,6 +161,35 @@ export default function SettingsPage() {
     setMessage(`${group.name} was deleted.`);
   };
 
+  const copySyncCode = async () => {
+    if (!syncCode) return;
+    try {
+      await navigator.clipboard.writeText(syncCode);
+      setMessage("Sync code copied.");
+    } catch {
+      setMessage("Copy is unavailable. Enter the code manually on your phone.");
+    }
+  };
+
+  const connectDevice = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsConnecting(true);
+    try {
+      const response = await fetch("/api/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: pairingCode }),
+      });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Could not connect this device.");
+      window.location.reload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not connect this device.");
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const storageLabel = storageMode === "cloud" ? "synced to Cloudflare D1" : storageMode === "offline" ? "local preview mode" : "connecting to Cloudflare";
 
   return (
@@ -166,6 +211,30 @@ export default function SettingsPage() {
           <p className="eyebrow">Settings</p>
           <h1>Manage medication groups</h1>
           <p>Set up the routines you take readings around. Your groups will be available from the main log.</p>
+        </section>
+
+        <section className="card sync-card" aria-labelledby="sync-heading">
+          <div className="card-header">
+            <div>
+              <h2 className="card-heading" id="sync-heading">Sync another device</h2>
+              <p className="card-subheading">Use your code to see the same groups and readings on your phone.</p>
+            </div>
+            <Icon name="shield" size={17} />
+          </div>
+          <div className="sync-body">
+            <div className="sync-code-panel">
+              <span className="sync-label">Your sync code</span>
+              <div className="sync-code-row">
+                <code>{syncCode || "----------"}</code>
+                <button className="button button-quiet" disabled={!syncCode} onClick={copySyncCode} type="button">Copy</button>
+              </div>
+              <span className="sync-help">Enter this code on another device to connect it to this log.</span>
+            </div>
+            <form className="pair-form" onSubmit={connectDevice}>
+              <label className="field-label">Connect with a code<input inputMode="text" maxLength={10} onChange={(event) => setPairingCode(event.target.value.toUpperCase())} placeholder="10-character code" value={pairingCode} /></label>
+              <button className="button button-primary" disabled={isConnecting || pairingCode.replace(/[^a-z0-9]/gi, "").length !== 10} type="submit">{isConnecting ? "Connecting..." : "Connect device"}</button>
+            </form>
+          </div>
         </section>
 
         <div className="settings-layout">

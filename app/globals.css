@@ -208,6 +208,71 @@ button {
   margin-bottom: 22px;
 }
 
+.sync-card {
+  margin-bottom: 20px;
+}
+
+.sync-body {
+  padding: 0 22px 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.9fr);
+  gap: 14px;
+}
+
+.sync-code-panel,
+.pair-form {
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fbfcfa;
+}
+
+.sync-label {
+  display: block;
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sync-code-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sync-code-row code {
+  color: var(--green);
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.sync-help {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.pair-form {
+  display: flex;
+  align-items: end;
+  gap: 9px;
+}
+
+.pair-form .field-label {
+  flex: 1;
+}
+
+.pair-form .button {
+  flex: 0 0 auto;
+}
+
 .topbar-settings {
   text-decoration: none;
 }
@@ -849,6 +914,21 @@ button {
 
   .settings-heading h1 {
     font-size: 32px;
+  }
+
+  .sync-body {
+    padding-left: 16px;
+    padding-right: 16px;
+    grid-template-columns: 1fr;
+  }
+
+  .pair-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pair-form .button {
+    width: 100%;
   }
 
   .topbar-actions .privacy-note {

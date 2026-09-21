@@ -26,6 +26,8 @@ A mobile-first blood pressure logger built with Next.js and Cloudflare D1.
    npm run deploy
    ```
 
-For local development, apply the migration to the local D1 emulator with `npm run db:migrate:local`, then use `npm run dev`. Until the binding is available, the UI falls back to a clearly labeled local preview mode.
+For local development, apply the migrations to the local D1 emulator with `npm run db:migrate:local`, then use `npm run dev`. Until the binding is available, the UI falls back to a clearly labeled local preview mode.
 
-The API uses an anonymous, HttpOnly browser cookie to keep one browser's log separated from another browser's log. Authentication and account recovery can be added as a next step before sharing the app publicly.
+After deployment, open Settings on the computer, copy the sync code, then open Settings on the phone and enter the code under "Sync another device". This connects both browsers to the same D1 log.
+
+The sync code is a private bearer code, not full authentication. Add real sign-in and account recovery before sharing the app publicly.
